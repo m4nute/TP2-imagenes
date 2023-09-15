@@ -213,6 +213,176 @@ void sharpen(ppm &img)
 	std::cout << "Duración: " << duration.count() << " segundos" << std::endl;
 }
 
+void kaleidoscope(ppm &img) //hay que checkearlo
+{
+    std::chrono::steady_clock::time_point inicio_timer = std::chrono::steady_clock::now();
+    
+    int width = img.width;
+    int height = img.height;
+
+    // Número de secciones en el kaleidoscopio (puedes ajustar este valor)
+    int numSections = 6;
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            int sectionWidth = width / numSections;
+            int sectionHeight = height;
+
+            // Determina a qué sección pertenece el píxel actual
+            int section = j / sectionWidth;
+
+            // Calcula la posición espejo dentro de la sección
+            int mirrorX = (sectionWidth * (section + 1)) - (j % sectionWidth) - 1;
+
+            // Obtiene el color del píxel original
+            pixel p = img.getPixel(i, j);
+
+            // Establece el color del píxel espejo
+            img.setPixel(i, mirrorX, p);
+        }
+    }
+
+    std::chrono::steady_clock::time_point final_timer = std::chrono::steady_clock::now();
+    std::chrono::duration<double> duracion = final_timer - inicio_timer;
+
+    std::cout << "Duración: " << duracion.count() << " segundos" << std::endl;
+}
+
+
+void canvas(ppm &img) //checkear
+{
+    std::chrono::steady_clock::time_point inicio_timer = std::chrono::steady_clock::now();
+    
+    int width = img.width;
+    int height = img.height;
+
+    // Factores de ajuste para la textura y el color (ajusta estos valores según tus preferencias)
+    float textureFactor = 0.1; // Controla la intensidad de la textura
+    float colorFactor = 1.2;   // Controla la intensidad de los colores
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            pixel p = img.getPixel(i, j);
+
+            // Aplica un efecto de textura
+            int nuevo_r = p.r + static_cast<int>(textureFactor * (rand() % 255 - 128));
+            int nuevo_g = p.g + static_cast<int>(textureFactor * (rand() % 255 - 128));
+            int nuevo_b = p.b + static_cast<int>(textureFactor * (rand() % 255 - 128));
+
+            // Ajusta el color
+            nuevo_r = static_cast<int>(nuevo_r * colorFactor);
+            nuevo_g = static_cast<int>(nuevo_g * colorFactor);
+            nuevo_b = static_cast<int>(nuevo_b * colorFactor);
+
+            // Asegúrate de que los valores estén en el rango [0, 255]
+            nuevo_r = std::min(std::max(nuevo_r, 0), 255);
+            nuevo_g = std::min(std::max(nuevo_g, 0), 255);
+            nuevo_b = std::min(std::max(nuevo_b, 0), 255);
+
+            img.setPixel(i, j, pixel(nuevo_r, nuevo_g, nuevo_b));
+        }
+    }
+
+    std::chrono::steady_clock::time_point final_timer = std::chrono::steady_clock::now();
+    std::chrono::duration<double> duracion = final_timer - inicio_timer;
+
+    std::cout << "Duración: " << duracion.count() << " segundos" << std::endl;
+}
+
+
+void emboss(ppm &img, int start, int end)  //Hay que checkearlo
+{
+    std::chrono::steady_clock::time_point inicio_timer = std::chrono::steady_clock::now();
+
+    // Matriz de convolución para el efecto de relieve
+    int kernel[3][3] = {
+        {-2, -1, 0},
+        {-1, 1, 1},
+        {0, 1, 2}
+    };
+
+    for (int i = start; i < end; i++)
+    {
+        for (int j = 0; j < img.width; j++)
+        {
+            int sum_r = 0, sum_g = 0, sum_b = 0;
+
+            for (int k = -1; k <= 1; k++)
+            {
+                for (int l = -1; l <= 1; l++)
+                {
+                    int row = i + k;
+                    int col = j + l;
+
+                    if (row >= 0 && row < img.height && col >= 0 && col < img.width)
+                    {
+                        pixel p = img.getPixel(row, col);
+                        sum_r += p.r * kernel[k + 1][l + 1];
+                        sum_g += p.g * kernel[k + 1][l + 1];
+                        sum_b += p.b * kernel[k + 1][l + 1];
+                    }
+                }
+            }
+
+            // Asegúrate de que los valores estén en el rango [0, 255]
+            int nuevo_r = std::min(std::max(sum_r + 128, 0), 255);
+            int nuevo_g = std::min(std::max(sum_g + 128, 0), 255);
+            int nuevo_b = std::min(std::max(sum_b + 128, 0), 255);
+
+            img.setPixel(i, j, pixel(nuevo_r, nuevo_g, nuevo_b));
+        }
+    }
+
+    std::chrono::steady_clock::time_point final_timer = std::chrono::steady_clock::now();
+    std::chrono::duration<double> duracion = final_timer - inicio_timer;
+
+    std::cout << "Duración: " << duracion.count() << " segundos" << std::endl;
+}
+
+
+void vintage(ppm &img, float brillo, int start, int end) //Vintage, hay que checkearlo
+{
+    std::chrono::steady_clock::time_point inicio_timer = std::chrono::steady_clock::now();
+    for (int i = 0; i < img.height; i++)
+    {
+        for (int j = 0; j < img.width; j++)
+        {
+            pixel p = img.getPixel(i, j);
+
+            // Aplica un efecto sepia al canal rojo y verde
+            int nuevo_r = static_cast<int>((p.r * 0.393) + (p.g * 0.769) + (p.b * 0.189));
+            int nuevo_g = static_cast<int>((p.r * 0.349) + (p.g * 0.686) + (p.b * 0.168));
+            int nuevo_b = static_cast<int>((p.r * 0.272) + (p.g * 0.534) + (p.b * 0.131));
+
+            // Ajusta el brillo
+            nuevo_r += 255 * brillo;
+            nuevo_g += 255 * brillo;
+            nuevo_b += 255 * brillo;
+
+            // Asegúrate de que los valores estén en el rango [0, 255]
+            if (nuevo_r < 0) nuevo_r = 0;
+            if (nuevo_r > 255) nuevo_r = 255;
+
+            if (nuevo_g < 0) nuevo_g = 0;
+            if (nuevo_g > 255) nuevo_g = 255;
+
+            if (nuevo_b < 0) nuevo_b = 0;
+            if (nuevo_b > 255) nuevo_b = 255;
+
+            img.setPixel(i, j, pixel(nuevo_r, nuevo_g, nuevo_b));
+        }
+    }
+    std::chrono::steady_clock::time_point final_timer = std::chrono::steady_clock::now();
+    std::chrono::duration<double> duracion = final_timer - inicio_timer;
+
+    std::cout << "Duración: " << duracion.count() << " segundos" << std::endl;
+}
+
+
 void edgeDetection(ppm &img)
 {
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
@@ -673,6 +843,213 @@ void multiSharpen(ppm &img, unsigned int n)
 	std::cout << "Duración: " << duration.count() << " segundos" << std::endl;
 }
 
+
+
+void canvasThreads(int startRow, int endRow, ppm &img, float textureFactor, float colorFactor) //Checkear
+{
+    for (int i = startRow; i < endRow; i++)
+    {
+        for (int j = 0; j < img.width; j++)
+        {
+            pixel p = img.getPixel(i, j);
+
+            // Aplica un efecto de textura
+            int nuevo_r = p.r + static_cast<int>(textureFactor * (rand() % 255 - 128));
+            int nuevo_g = p.g + static_cast<int>(textureFactor * (rand() % 255 - 128));
+            int nuevo_b = p.b + static_cast<int>(textureFactor * (rand() % 255 - 128));
+
+            // Ajusta el color
+            nuevo_r = static_cast<int>(nuevo_r * colorFactor);
+            nuevo_g = static_cast<int>(nuevo_g * colorFactor);
+            nuevo_b = static_cast<int>(nuevo_b * colorFactor);
+
+            // Asegúrate de que los valores estén en el rango [0, 255]
+            nuevo_r = std::min(std::max(nuevo_r, 0), 255);
+            nuevo_g = std::min(std::max(nuevo_g, 0), 255);
+            nuevo_b = std::min(std::max(nuevo_b, 0), 255);
+
+            img.setPixel(i, j, pixel(nuevo_r, nuevo_g, nuevo_b));
+        }
+    }
+}
+
+void multiCanvas(ppm &img, int numThreads, float textureFactor, float colorFactor)
+{
+    int height = img.height;
+    int rowsPerThread = height / numThreads;
+    std::vector<std::thread> threads;
+
+    for (int i = 0; i < numThreads; i++)
+    {
+        int startRow = i * rowsPerThread;
+        int endRow = (i == numThreads - 1) ? height : (i + 1) * rowsPerThread;
+        threads.emplace_back(canvasThreads, startRow, endRow, std::ref(img), textureFactor, colorFactor);
+    }
+
+    for (auto &thread : threads)
+    {
+        thread.join();
+    }
+}
+
+void kaleidoscopeThreads(int startRow, int endRow, ppm &img)
+{
+    int width = img.width;
+
+    // Número de secciones en el kaleidoscopio (ajusta este valor según tu preferencia)
+    int numSections = 6;
+
+    for (int i = startRow; i < endRow; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            int sectionWidth = width / numSections;
+
+            // Determina a qué sección pertenece el píxel actual
+            int section = j / sectionWidth;
+
+            // Calcula la posición espejo dentro de la sección
+            int mirrorX = (sectionWidth * (section + 1)) - (j % sectionWidth) - 1;
+
+            // Obtiene el color del píxel original
+            pixel p = img.getPixel(i, j);
+
+            // Establece el color del píxel espejo
+            img.setPixel(i, mirrorX, p);
+        }
+    }
+}
+
+void multiKaleidoscope(ppm &img, int numThreads)
+{
+    int height = img.height;
+    int rowsPerThread = height / numThreads;
+    std::vector<std::thread> threads;
+
+    for (int i = 0; i < numThreads; i++)
+    {
+        int startRow = i * rowsPerThread;
+        int endRow = (i == numThreads - 1) ? height : (i + 1) * rowsPerThread;
+        threads.emplace_back(kaleidoscopeThreads, startRow, endRow, std::ref(img));
+    }
+
+    for (auto &thread : threads)
+    {
+        thread.join();
+    }
+}
+
+void embossThreads(int startRow, int endRow, ppm &img)
+{
+    int width = img.width;
+
+    // Matriz de convolución para el efecto de relieve
+    int kernel[3][3] = {
+        {-2, -1, 0},
+        {-1, 1, 1},
+        {0, 1, 2}
+    };
+
+    for (int i = startRow; i < endRow; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            int sum_r = 0, sum_g = 0, sum_b = 0;
+
+            for (int k = -1; k <= 1; k++)
+            {
+                for (int l = -1; l <= 1; l++)
+                {
+                    int row = i + k;
+                    int col = j + l;
+
+                    if (row >= 0 && row < img.height && col >= 0 && col < width)
+                    {
+                        pixel p = img.getPixel(row, col);
+                        sum_r += p.r * kernel[k + 1][l + 1];
+                        sum_g += p.g * kernel[k + 1][l + 1];
+                        sum_b += p.b * kernel[k + 1][l + 1];
+                    }
+                }
+            }
+
+            // Asegúrate de que los valores estén en el rango [0, 255]
+            int nuevo_r = std::min(std::max(sum_r + 128, 0), 255);
+            int nuevo_g = std::min(std::max(sum_g + 128, 0), 255);
+            int nuevo_b = std::min(std::max(sum_b + 128, 0), 255);
+
+            img.setPixel(i, j, pixel(nuevo_r, nuevo_g, nuevo_b));
+        }
+    }
+}
+
+void multiEmboss(ppm &img, int numThreads)
+{
+    int height = img.height;
+    int rowsPerThread = height / numThreads;
+    std::vector<std::thread> threads;
+
+    for (int i = 0; i < numThreads; i++)
+    {
+        int startRow = i * rowsPerThread;
+        int endRow = (i == numThreads - 1) ? height : (i + 1) * rowsPerThread;
+        threads.emplace_back(embossThreads, startRow, endRow, std::ref(img));
+    }
+
+    for (auto &thread : threads)
+    {
+        thread.join();
+    }
+}
+
+void vintageThreads(int startRow, int endRow, ppm &img, float brillo)
+{
+    int width = img.width;
+
+    for (int i = startRow; i < endRow; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            pixel p = img.getPixel(i, j);
+
+            int nuevo_r = p.r + 255 * brillo;
+            int nuevo_g = p.g + 255 * brillo;
+            int nuevo_b = p.b + 255 * brillo;
+
+            if (nuevo_r < 0) nuevo_r = 0;
+            if (nuevo_r > 255) nuevo_r = 255;
+
+            if (nuevo_g < 0) nuevo_g = 0;
+            if (nuevo_g > 255) nuevo_g = 255;
+
+            if (nuevo_b < 0) nuevo_b = 0;
+            if (nuevo_b > 255) nuevo_b = 255;
+
+            img.setPixel(i, j, pixel(nuevo_r, nuevo_g, nuevo_b));
+        }
+    }
+}
+
+void multiVintage(ppm &img, int numThreads, float brillo)
+{
+    int height = img.height;
+    int rowsPerThread = height / numThreads;
+    std::vector<std::thread> threads;
+
+    for (int i = 0; i < numThreads; i++)
+    {
+        int startRow = i * rowsPerThread;
+        int endRow = (i == numThreads - 1) ? height : (i + 1) * rowsPerThread;
+        threads.emplace_back(vintageThreads, startRow, endRow, std::ref(img), brillo);
+    }
+
+    for (auto &thread : threads)
+    {
+        thread.join();
+    }
+}
+
+//a 
 int sobelVertical[3][3] = {
 	{1, 0, -1},
 	{2, 0, -2},
