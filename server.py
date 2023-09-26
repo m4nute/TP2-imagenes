@@ -19,18 +19,18 @@ procces_dir = "imagenes_procesadas"
 os.makedirs(procces_dir, exist_ok=True)
 
 @app.post("/upload/")
-async def upload_image(file: UploadFile, filtro: str, threads: int, parametro: float):
+async def upload_image(params: Upload):
     try:
         # Check if the file is an image (you can add more strict checks here)
-        if file.filename.endswith((".jpg", ".jpeg", ".png", ".webp")):
+        if params.file.filename.endswith((".jpg", ".jpeg", ".png", ".webp")):
             # Generate a unique filename
-            file_name = os.path.join(upload_dir, file.filename)
+            file_name = os.path.join(upload_dir, params.file.filename)
             with open(file_name, "wb") as image_file:
-                image_file.write(file.file.read())
+                image_file.write(params.file.file.read())
 
         
 
-        command = f"./main {filtro} {threads} {parametro} ./imagenes_subidas/{file_name} imagenes_procesadas"
+        command = f"./main {params.filtro} {params.threads} {params.parametro} ./imagenes_subidas/{file_name} imagenes_procesadas"
         try:
             # Run the command and capture the output
             time = subprocess.check_output(command, shell=True, text=True)
