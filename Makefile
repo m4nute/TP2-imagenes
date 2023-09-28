@@ -2,7 +2,7 @@
 
 BIN = main
 
-CPP = main.cpp filters.cpp ppm.cpp
+CPP = main.cpp filters.cpp ppm.cpp aplicar.cpp
 OBJ = $(CPP:.cpp=.o)
 SRC = $(CPP)
 
@@ -11,7 +11,7 @@ all: main
 clean:
 	rm -f $(BIN) $(OBJ)
 
-main: main.o filters.o ppm.o
+main: $(OBJ)
 	g++ -pthread -o $@ $^
 
 %.o: %.cpp
