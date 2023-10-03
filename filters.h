@@ -20,9 +20,9 @@ void sharpen(ppm &img);
 void edgeDetection(ppm &img); // ppm &img_target, sacamos este argumento por ahora
 void plain(ppm &img, unsigned char c);
 void gradiente(ppm &img, int dimension);
-void vintage(ppm &img, float brillo, int start, int end);
+void vintage(ppm &img, float brillo);
 void kaleidoscope(ppm &img);
-void emboss(ppm &img, int start, int end);
+void emboss(ppm &img);
 void canvas(ppm &img); //a
 // FILTROS MULTI-THREAD
 
@@ -38,7 +38,7 @@ void multiMerge(ppm &img1, ppm &img2, float alpha, unsigned int n);
 void multiVintage(ppm &img, unsigned int n, float brillo);
 void multiKaleidoscope(ppm &img, unsigned int n);
 void multiEmboss(ppm &img, unsigned int n);
-void multiCanvas(ppm &img, unsigned int n, float textureFactor, float colorFactor);
+void multiCanvas(ppm &img, unsigned int n);
 // Completar :)
 
 #endif

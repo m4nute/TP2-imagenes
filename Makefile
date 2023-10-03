@@ -2,7 +2,7 @@
 
 BIN = main
 
-CPP = main.cpp filters.cpp ppm.cpp aplicar.cpp
+CPP = main.cpp filters.cpp ppm.cpp aplicar.cpp 
 OBJ = $(CPP:.cpp=.o)
 SRC = $(CPP)
 

@@ -294,7 +294,7 @@ void canvas(ppm &img) //checkear
 }
 
 
-void emboss(ppm &img, int start, int end)  //Hay que checkearlo
+void emboss(ppm &img)  //Hay que checkearlo
 {
     std::chrono::steady_clock::time_point inicio_timer = std::chrono::steady_clock::now();
 
@@ -305,7 +305,7 @@ void emboss(ppm &img, int start, int end)  //Hay que checkearlo
         {0, 1, 2}
     };
 
-    for (int i = start; i < end; i++)
+    for (int i = -1; i < 1; i++)
     {
         for (int j = 0; j < img.width; j++)
         {
@@ -344,7 +344,7 @@ void emboss(ppm &img, int start, int end)  //Hay que checkearlo
 }
 
 
-void vintage(ppm &img, float brillo, int start, int end) //Vintage, hay que checkearlo
+void vintage(ppm &img, float brillo) //Vintage, hay que checkearlo
 {
     std::chrono::steady_clock::time_point inicio_timer = std::chrono::steady_clock::now();
     for (int i = 0; i < img.height; i++)
@@ -845,8 +845,11 @@ void multiSharpen(ppm &img, unsigned int n)
 
 
 
-void canvasThreads(int startRow, int endRow, ppm &img, float textureFactor, float colorFactor) //Checkear
+void canvasThreads(int startRow, int endRow, ppm &img) //Checkear
 {
+
+	float textureFactor = 0.6; // Controla la intensidad de la textura
+    float colorFactor = 1.2;
     for (int i = startRow; i < endRow; i++)
     {
         for (int j = 0; j < img.width; j++)
@@ -873,8 +876,10 @@ void canvasThreads(int startRow, int endRow, ppm &img, float textureFactor, floa
     }
 }
 
-void multiCanvas(ppm &img, int numThreads, float textureFactor, float colorFactor)
+void multiCanvas(ppm &img, unsigned int numThreads)
 {
+	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+
     int height = img.height;
     int rowsPerThread = height / numThreads;
     std::vector<std::thread> threads;
@@ -883,13 +888,17 @@ void multiCanvas(ppm &img, int numThreads, float textureFactor, float colorFacto
     {
         int startRow = i * rowsPerThread;
         int endRow = (i == numThreads - 1) ? height : (i + 1) * rowsPerThread;
-        threads.emplace_back(canvasThreads, startRow, endRow, std::ref(img), textureFactor, colorFactor);
+        threads.emplace_back(canvasThreads, startRow, endRow, std::ref(img));
     }
 
     for (auto &thread : threads)
     {
         thread.join();
     }
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> duration = end - start;
+
+	std::cout << "Duración: " << duration.count() << " segundos" << std::endl;
 }
 
 void kaleidoscopeThreads(int startRow, int endRow, ppm &img)
@@ -920,8 +929,10 @@ void kaleidoscopeThreads(int startRow, int endRow, ppm &img)
     }
 }
 
-void multiKaleidoscope(ppm &img, int numThreads)
+void multiKaleidoscope(ppm &img, unsigned int numThreads)
 {
+	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+
     int height = img.height;
     int rowsPerThread = height / numThreads;
     std::vector<std::thread> threads;
@@ -937,7 +948,12 @@ void multiKaleidoscope(ppm &img, int numThreads)
     {
         thread.join();
     }
-}
+
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> duration = end - start;
+
+	std::cout << "Duración: " << duration.count() << " segundos" << std::endl;
+}	
 
 void embossThreads(int startRow, int endRow, ppm &img)
 {
@@ -983,8 +999,10 @@ void embossThreads(int startRow, int endRow, ppm &img)
     }
 }
 
-void multiEmboss(ppm &img, int numThreads)
+void multiEmboss(ppm &img, unsigned int numThreads)
 {
+	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+
     int height = img.height;
     int rowsPerThread = height / numThreads;
     std::vector<std::thread> threads;
@@ -1000,16 +1018,21 @@ void multiEmboss(ppm &img, int numThreads)
     {
         thread.join();
     }
+
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> duration = end - start;
+
+	std::cout << "Duración: " << duration.count() << " segundos" << std::endl;
 }
 
 void vintageThreads(int startRow, int endRow, ppm &img, float brillo)
 {
-    int width = img.width;
-
+	
     for (int i = startRow; i < endRow; i++)
     {
-        for (int j = 0; j < width; j++)
+        for (int j = 0; j < img.width; j++)
         {
+			if (i >= 0 && i < img.height && j >= 0 && j < img.width) {
             pixel p = img.getPixel(i, j);
 
             int nuevo_r = p.r + 255 * brillo;
@@ -1026,30 +1049,40 @@ void vintageThreads(int startRow, int endRow, ppm &img, float brillo)
             if (nuevo_b > 255) nuevo_b = 255;
 
             img.setPixel(i, j, pixel(nuevo_r, nuevo_g, nuevo_b));
+			}
         }
     }
 }
 
-void multiVintage(ppm &img, int numThreads, float brillo)
+void multiVintage(ppm &img, unsigned int n, float brillo)
 {
-    int height = img.height;
-    int rowsPerThread = height / numThreads;
+	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     std::vector<std::thread> threads;
+	int rowsPerThread = img.height / n;
+	int remainingRows = img.height % n;
 
-    for (int i = 0; i < numThreads; i++)
+	int startRow = 0;
+	int endRow = startRow + rowsPerThread;
+
+    for (int t = 0; t < n; t++)
     {
-        int startRow = i * rowsPerThread;
-        int endRow = (i == numThreads - 1) ? height : (i + 1) * rowsPerThread;
-        threads.emplace_back(vintageThreads, startRow, endRow, std::ref(img), brillo);
+		if (t == n - 1) endRow += remainingRows;
+		threads.emplace_back(vintageThreads, startRow, endRow, std::ref(img), brillo);
+		startRow = endRow;
+		endRow = startRow + rowsPerThread;
     }
 
     for (auto &thread : threads)
     {
         thread.join();
     }
+
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> duration = end - start;
+
+	std::cout << "Duración: " << duration.count() << " segundos" << std::endl;
 }
 
-//a 
 int sobelVertical[3][3] = {
 	{1, 0, -1},
 	{2, 0, -2},

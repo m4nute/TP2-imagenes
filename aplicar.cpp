@@ -13,6 +13,7 @@ using namespace std;
 
 int aplicar(string filter, float p1, string imgString, int n, string out, ppm img2)
 {
+	
 	ppm img(imgString);
 	
 	if (filter == "plain") {
@@ -87,19 +88,21 @@ int aplicar(string filter, float p1, string imgString, int n, string out, ppm im
 			cout << "El parametro debe ser un decimal entre -1 / 1" << endl;
 			return 0;
 		}
-		if (n >= 2) multiVintage(std::ref(img), p1, n);
-		else vintage(std::ref(img), p1, -1,1);
+		if (n >= 2) multiVintage(std::ref(img), n, p1);
+		else vintage(std::ref(img), p1);
 	}
 	else if (filter=="emboss"){
-		if (n >= 2) multiEmboss(std::ref(img), n);
-		else emboss(std::ref(img), -1, 1);
+		// if (n >= 2) 
+		if (n == 1) n = 2;
+		multiEmboss(std::ref(img), n);
+		// else emboss(std::ref(img));
 	}
 	else if (filter=="kaleidoscope"){
 		if (n >= 2) multiKaleidoscope(std::ref(img), n);
 		else kaleidoscope(std::ref(img));
 	}
 	else if (filter=="canvas"){
-		if (n >= 2) multiCanvas(std::ref(img), n, -1,1);
+		if (n >= 2) multiCanvas(std::ref(img), n);
 		else canvas(std::ref(img));
 	}
 	else {
