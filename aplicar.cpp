@@ -92,10 +92,8 @@ int aplicar(string filter, float p1, string imgString, int n, string out, ppm im
 		else vintage(std::ref(img), p1);
 	}
 	else if (filter=="emboss"){
-		// if (n >= 2) 
-		if (n == 1) n = 2;
+		//emboss single-thread no anda, simplemente ejecutamos emboss multi-thread pero con 1 thread
 		multiEmboss(std::ref(img), n);
-		// else emboss(std::ref(img));
 	}
 	else if (filter=="kaleidoscope"){
 		if (n >= 2) multiKaleidoscope(std::ref(img), n);
