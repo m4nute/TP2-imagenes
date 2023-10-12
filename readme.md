@@ -1,7 +1,8 @@
 # TP4
 
 # Front End
-Clonar el otro repo
+Clonar el repositorio con el front-end
+  https://github.com/m4nute/front-imagenes
 
 ## Instalar bun
 -  npm install -g bun
