@@ -2,7 +2,7 @@
 
 # Front End
 -  El front end se encuentra dentro del directorio front-imagenes
--  Para acceder a el fácilmente, ejecutar 'cd front-imagenes'
+-  Para acceder a él fácilmente, ejecutar 'cd front-imagenes'
 ## Instalar bun
 -  npm install -g bun
 -  (Bun es un entorno en tiempo de ejecución de JavaScript, como Node o Deno, todo en uno. Bun tiene un paquete nativo, un transpilador, un ejecutor de tareas y un cliente npm integrado.)
