@@ -10,7 +10,7 @@ Clonar el otro repo
 - bun install
 
 ## Correr el entorno de desarrollo de svelte
-- bun dev
+- bun dev (se ejecuta en localhost:5173)
 
 # Back End
 
